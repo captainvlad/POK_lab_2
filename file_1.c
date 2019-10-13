@@ -28,13 +28,18 @@ void write_in_string(my_string_t* arg_1, char arg_2[]){
 	printf("Not finished yet");
 }
 
+my_string_t create_string(){
+	my_string_t string;
+	string.current_size = 1;
+	string.current_max_size = 39;
+	my_string_t * pstring = &string;
+	string.ptr = create_memory(pstring);
+	return string;
+}
+
 int main(){
-	my_string_t VladOS;
-	VladOS.current_size = 1;
-	VladOS.current_max_size = 39;
-	my_string_t * pVladOS = &VladOS;
-	VladOS.ptr = create_memory(pVladOS);
-	printf("%c", *(VladOS.ptr));
+	my_string_t A = create_string();
+	printf("%i", A.current_max_size);
 
 
 //	my_string_t * pVladOS = &VladOS;
