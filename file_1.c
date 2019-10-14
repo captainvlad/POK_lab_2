@@ -30,7 +30,17 @@ char* create_memory(int arg){
 
 void write_in_string(my_string_t* arg_1, char arg_2[]){
 	/* writes in string */
-	printf("Not finished yet");
+
+	int k = 0;
+	while (1){
+		int j = (*arg_1).current_size;
+		if (arg_2[k] == '\0'){
+			break;
+		}
+		*((*arg_1).ptr + j) = arg_2[k];
+		change_current_size(arg_1);
+		k++;
+	}
 }
 
 my_string_t create_string(){
@@ -46,8 +56,11 @@ my_string_t create_string(){
 int main(){
 	/* testing func */
 	my_string_t A = create_string();
-	*(A.ptr + 1) = 'A';
-	free(A.ptr + 1);
+	write_in_string(&A, "HELLO");
+	write_in_string(&A, " WORLD");
+	for (int s = 1; s < 12; s++){
+		printf("%c", *(A.ptr + s));
+	}
 	return 0;
 }
 
