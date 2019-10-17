@@ -63,8 +63,10 @@ int my_str_create(my_str_t *str, size_t buf_size) {
     return 0;
 }
 
+
 //! Звільняє пам'ять, знищуючи стрічку.
 //! Аналог деструктора інших мов.
+//! Ремарка: free() нормально працює із NULL.
 void my_str_free(my_str_t *str) {
     free(str->data);
     str->size_m = (size_t) 0;
@@ -98,9 +100,7 @@ int my_str_from_cstr(my_str_t *str, const char *cstr, size_t buf_size) {
     return 0;
 }
 
-//! Звільняє пам'ять, знищуючи стрічку.
-//! Аналог деструктора інших мов.
-//! Ремарка: free() нормально працює із NULL.
+
 
 //!============================================================================
 //! Інформація про стрічку
@@ -131,41 +131,29 @@ char my_str_empty(const my_str_t *str) {
 //! Повертає символ у вказаній позиції, або -1, якщо вихід за межі стрічки,
 //! включаючи переданий нульовий вказівник.
 //! Тому, власне, int а не char
-char my_str_getc(my_str_t* s, size_t index) {
-    if (index > s->size_m || index < 0) return -1;
-//    return s->data[index];
-    return (char)(s->data + sizeof(char) *index);
+int my_str_getc(my_str_t* str, size_t index) {
+    if (index > str->size_m || index < 0 || str == NULL) return -1;
+    return *(str->data + sizeof(char) *index);
 }
 
-//char my_str_getc(const my_str_t *str, size_t index) {
-//    const char *copy_str;
-//    char *temp;
-////    if (index > str->capacity_m) {
-////        return -1;
-////    }
-//    memcpy(copy_str, str->data, str->size_m);
-//    while (*copy_str) {
-//        if (*copy_str == (int) index){
-//            temp = (char *) str;
-//        }
-//        copy_str++;
+//char* strchr(const char *string, int c) {
+//    while( *string ) {
+//        if( *string == c )
+//            return (char *)string;
+//        string++;
 //    }
-//    return *temp;
+//
+//    return (char *)0;
 //}
-char* strchr(const char *string, int c) {
-    while( *string ) {
-        if( *string == c )
-            return (char *)string;
-        string++;
-    }
-
-    return (char *)0;
-}
 
 //! Записує символ у вказану позиції (заміняючи той, що там був),
 //! Повертає 0, якщо позиція в межах стрічки,
 //! Поветає -1, не змінюючи її вмісту, якщо ні.
-int my_str_putc(my_str_t *str, size_t index, char c);
+int my_str_putc(my_str_t *str, size_t index, char c){
+    if (index > str->size_m || index < 0 || str == NULL) return -1;
+    *(str->data + sizeof(char) *index) = c;
+    return 0;
+}
 
 //! Повернути вказівник на С-стрічку, еквівалентну str.
 //! Вважатимемо, що змінювати цю С-стрічку заборонено.
@@ -173,7 +161,10 @@ int my_str_putc(my_str_t *str, size_t index, char c);
 //! може стати некоректним.
 //! Якщо в буфері було зарезервовано на байт більше за макс. розмір, можна
 //! просто додати нульовий символ в кінці та повернути вказівник data.
-const char *my_str_get_cstr(my_str_t *str);
+const char *my_str_get_cstr(my_str_t *str){
+    *(str->data + str->size_m * sizeof(char)) = '\0';
+    return str->data;
+}
 
 //!===========================================================================
 //! Модифікації стрічки, що змінюють її розмір і можуть викликати реалокацію.
@@ -187,7 +178,9 @@ const char *my_str_get_cstr(my_str_t *str);
 //! Повертає 0, якщо успішно,
 //! -1 -- якщо передано нульовий вказівник,
 //! -2 -- помилка виділення додаткової пам'яті.
-int my_str_pushback(my_str_t *str, char c);
+int my_str_pushback(my_str_t *str, char c){
+    if (str->size_m + 1)  >
+}
 
 //! Викидає символ з кінця.
 //! Повертає його, якщо успішно,
@@ -331,12 +324,13 @@ int my_str_read_file_delim(my_str_t *str, FILE *file, char delimiter);
 int main() {
     my_str_t solid;
     my_str_create(&solid, 0);
-    char c[] = "the wooden bober";
+    char c[] = "bober";
     my_str_from_cstr(&solid, c, sizeof(c));
     printf("%zu\n", solid.capacity_m);
     printf("Cstring %s\n", c);
     printf("%s %zu %zu\n", solid.data, solid.capacity_m, solid.size_m);
-    printf("%s", my_str_getc(&solid, (size_t) 1));
-    printf("%d", my_str_empty(&solid));
+//    char b[] = my_str_get_cstr(&solid);
+    printf("%s",my_str_get_cstr(&solid));
+//    printf("%d", my_str_empty(&solid));
 
 }
