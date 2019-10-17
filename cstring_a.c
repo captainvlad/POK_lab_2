@@ -178,15 +178,32 @@ const char *my_str_get_cstr(my_str_t *str){
 //! Повертає 0, якщо успішно,
 //! -1 -- якщо передано нульовий вказівник,
 //! -2 -- помилка виділення додаткової пам'яті.
-int my_str_pushback(my_str_t *str, char c){
-    if (str->size_m + 1)  >
+int my_str_pushback(my_str_t *str, char c) {
+    // mykyta
+    if (str == NULL) return -1;
+    if (str->size_m == str->capacity_m - 1) {
+        // виділити нову пам'ять та робити наступні операції
+    }
+    // реалізувати помилку -2
+    *(str->data + my_str_size(str) *index) = c;
+    str->size_m++;
+    return 0;
+
 }
 
 //! Викидає символ з кінця.
 //! Повертає його, якщо успішно,
 //! -1 -- якщо передано нульовий вказівник,
 //! -2 -- якщо стрічка порожня.
-int my_str_popback(my_str_t *str);
+int my_str_popback(my_str_t *str) {
+    // mykyta
+    if (str == NULL) return -1;
+    if (my_str_empty(str)) return -2;
+    char popper = my_str_getc(str, (my_str_size(str) - 1));
+    *(str->data + my_str_size(str) *index) = '/0';
+    str->size_m--;
+    return my_str_getc(str, (my_str_size(str) - 1));
+}
 
 //! Копіює стрічку. Якщо reserve == true,
 //! то із тим же розміром буферу, що й вихідна,
@@ -200,17 +217,43 @@ int my_str_copy(const my_str_t *from, my_str_t *to, int reserve);
 //! Уточнення (чомусь ця ф-ція викликала багато непорозумінь):
 //! стрічка продовжує існувати, буфер той самий, того ж розміру, що був,
 //! лише містить 0 символів -- єдине, що вона робить, це size_m = 0.
-void my_str_clear(my_str_t *str);
+void my_str_clear(my_str_t *str) {
+    // mykyta
+    // ?????????????
+    str->size_m = 0;
+    return 0;
+}
 
 //! Вставити символ у стрічку в заданій позиції, змістивши решту символів праворуч.
 //! За потреби -- збільшує буфер.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_insert_c(my_str_t *str, char c, size_t pos);
+int my_str_insert_c(my_str_t *str, char c, size_t pos) {
+    // mykyta
+    // написати помилки -1, -2
+    if (str->size_m == str->capacity_m - 1) {
+        // виділити нову пам'ять та робити наступні операції
+    }
+    for (int i = my_str_size(str) - 1; i >= pos; i--) {
+        *(str->data + i + 1 *index) = *(str->data + i *index);
+    }
+    *(str->data + pos *index) = c;
+    str->size_m--;
+    return 0;
+
+}
 
 //! Вставити стрічку в заданій позиції, змістивши решту символів праворуч.
 //! За потреби -- збільшує буфер.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_insert(my_str_t *str, const my_str_t *from, size_t pos);
+int my_str_insert(my_str_t *str, const my_str_t *from, size_t pos) {
+    // mykyta
+    // написати помилки -1, -2
+    for (int i = 0; i < from->size_m; i++) {
+        my_str_insert_c(str, *(from->data + i *index), pos);
+        pos++;
+    }
+    return 0;
+}
 
 //! Вставити C-стрічку в заданій позиції, змістивши решту символів праворуч.
 //! За потреби -- збільшує буфер.
@@ -220,7 +263,11 @@ int my_str_insert_cstr(my_str_t *str, const char *from, size_t pos);
 //! Додати стрічку в кінець.
 //! За потреби -- збільшує буфер.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_append(my_str_t *str, const my_str_t *from);
+int my_str_append(my_str_t *str, const my_str_t *from) {
+    // mykyta
+    // написати помилки -1, -2
+    my_str_insert(str, from, my_str_size(str));
+}
 
 //! Додати С-стрічку в кінець.
 //! За потреби -- збільшує буфер.
