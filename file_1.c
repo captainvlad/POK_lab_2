@@ -231,7 +231,8 @@ void my_str_clear(my_str_t *str){
 //! За потреби -- збільшує буфер.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_insert_c(my_str_t *str, char c, size_t pos){
-	if (str->size_m + 1 == str->capacity_m){
+//	printf("%i %i \n", str->size_m, str->capacity_m);
+	if (str->size_m == str->capacity_m){
 		my_str_reserve(str, str->capacity_m + 1);
 	}
 	char temp = c;
@@ -241,18 +242,30 @@ int my_str_insert_c(my_str_t *str, char c, size_t pos){
 		str->data[i] = temp;
 		temp = temp_2;
 	}
+	str->size_m++;
 	return 0;
 }
 
 //! Вставити стрічку в заданій позиції, змістивши решту символів праворуч.
 //! За потреби -- збільшує буфер.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_insert(my_str_t *str, const my_str_t *from, size_t pos);
+int my_str_insert(my_str_t *str, my_str_t *from, size_t pos){
+	for (int i = 0; i < sizeof(from); i++){
+		my_str_insert_c(str, from->data[i], pos + i);
+	}
+	my_str_pushback(str, '\0');
+	return 0;
+}
 
 //! Вставити C-стрічку в заданій позиції, змістивши решту символів праворуч.
 //! За потреби -- збільшує буфер.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_insert_cstr(my_str_t *str, const char *from, size_t pos);
+int my_str_insert_cstr(my_str_t *str, char *from, size_t pos){
+	my_str_t str_2;
+	my_str_create(&str_2, 0);
+	my_str_from_cstr(&str_2, from, sizeof(from) + 1);
+	my_str_insert(str, &str_2, pos);
+}
 
 //! Додати стрічку в кінець.
 //! За потреби -- збільшує буфер.
@@ -360,28 +373,15 @@ int my_str_read_file_delim(my_str_t *str, FILE *file, char delimiter);
 
 int main() {
 	my_str_t solid;
+	my_str_t solid_2;
 	my_str_create(&solid, 0);
 	char c[] = "the wooden bober";
 	my_str_from_cstr(&solid, c, sizeof(c) + 1);
+	my_str_from_cstr(&solid_2, "FUCKK", sizeof(5) + 1);
+
 //	printf("%i %i\n", solid.capacity_m, solid.size_m);
 //	printf("Cstring %s\n", c);
 	printf("%s %i %i\n", solid.data, solid.capacity_m, solid.size_m);
-	my_str_insert_c(&solid, 'f', 1);
-	printf("%s\n", solid.data);
-
-
-//	printf("%i\n", my_str_pushback(&solid, 'V'));
-//	my_str_get_cstr(&solid);
-//	printf("%c %i %i\n", solid.data[17], solid.capacity_m, solid.size_m);
-//	printf("%c \n", my_str_getc(&solid, 1));
-//	my_str_putc(&solid, 1, 'l');
-//	printf("%c", my_str_getc(&solid, 1));
-//	printf("%s", solid.data);
-//	my_str_get_cstr(&solid);
-//	printf("\n %i", solid.data[solid.capacity_m + 1]);
-
-
-//	printf("%s", my_str_getc(&solid, (size_t) 1));
-//	printf("%d", my_str_empty(&solid));
-
-}
+	my_str_insert_cstr(&solid, "FUCK", 1);
+//	printf("%c %i %i\n", solid.data[10], solid.capacity_m, solid.size_m);
+	}
