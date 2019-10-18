@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <malloc.h>
 #include <mem.h>
 
@@ -182,14 +183,28 @@ const char *my_str_get_cstr(my_str_t *str){
 //! Повертає 0, якщо успішно,
 //! -1 -- якщо передано нульовий вказівник,
 //! -2 -- помилка виділення додаткової пам'яті.
-int my_str_pushback(my_str_t *str, char c){
-	if (str == NULL){
+//int my_str_pushback(my_str_t *str, char c){
+//	if (str == NULL){
+//		return -1;
+//	}
+//	if (my_str_reserve(str, str->capacity_m + 1) == -1){
+//		return -2;
+//	}
+//	str->data[str->size_m + 1] = c;
+//	str->size_m++;
+//	return 0;
+//}
+
+int my_str_pushback(my_str_t *str, char c) {
+	// Add a symbol (character) in the end of the my_str
+	// return 0 if there no mistakes
+	// return -1 if zero pointer
+	// return -2 if it is impossible to reserve new memory
+	if (str == NULL)
 		return -1;
-	}
-	if (str->size_m == str->capacity_m - 1){
+	if (my_str_reserve(str, str->size_m + 1) == -1)
 		return -2;
-	}
-	str->data[str->size_m + 1] = c;
+	str->data[str->size_m] = c;
 	str->size_m++;
 	return 0;
 }
@@ -310,7 +325,7 @@ int my_str_substr(my_str_t *from, my_str_t *to, size_t beg, size_t end){
 
 //! C-string варіант my_str_substr().
 //! Вважати, що в цільовій С-стрічці достатньо місц.
-int my_str_substr_cstr(const my_str_t *from, char *to, size_t beg, size_t end){
+int my_str_substr_cstr(my_str_t *from, char *to, size_t beg, size_t end){
 	if (beg > from->size_m || beg > end){
 		return -1;
 	}
@@ -332,6 +347,7 @@ int my_str_substr_cstr(const my_str_t *from, char *to, size_t beg, size_t end){
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_shrink_to_fit(my_str_t *str){
 	str->capacity_m = str->size_m;
+	return 0;
 }
 
 //! Якщо new_size менший за поточний розмір -- просто
@@ -364,40 +380,116 @@ int my_str_resize(my_str_t *str, size_t new_size, char sym){
 //! Знайти першу підстрічку в стрічці, повернути номер її
 //! початку або (size_t)(-1), якщо не знайдено. from -- місце, з якого починати шукати.
 //! Якщо більше за розмір -- вважати, що не знайдено.
-size_t my_str_find(const my_str_t *str, const my_str_t *tofind, size_t from);
+size_t my_str_find(const my_str_t *str, const my_str_t *tofind, size_t from) {
+	if (from > str->size_m) {
+		return (size_t) (-1);
+	}
+	size_t k = 0;
+	int i = 0;
+	for (size_t n = from; n < str->size_m; n++) {
+		if (str->data[n] == tofind->data[k]) {
+			size_t start = k;
+			if (tofind->size_m == k + 1) {
+				return k;
+			}
+			else {
+				k++;
+			}
+
+		}
+	}
+	return (size_t) -1;
+}
 
 //! Порівняти стрічки, повернути 0, якщо рівні (за вмістом!)
 //! -1 (або інше від'ємне значення), якщо перша менша,
 //! 1 (або інше додатне значення) -- якщо друга.
 //! Поведінка має бути такою ж, як в strcmp.
-int my_str_cmp(const my_str_t *str1, const my_str_t *str2);
+int my_str_cmp(const my_str_t *str1, const my_str_t *str2){
+	if (str1->size_m < str2->size_m) return -1;
+	if (str2->size_m < str1->size_m) return 1;
+	for (int i = 0; i <str1->size_m; i++) {
+		if (*(str1->data + i) != *(str2->data + i)){
+			return -2;
+		}
+	}
+	return 0;
+}
 
 //! Порівняти стрічку із С-стрічкою, повернути 0, якщо рівні (за вмістом!)
 //! -1 (або інше від'ємне значення), якщо перша менша,
 //! 1 (або інше додатне значення) -- якщо друга.
 //! Поведінка має бути такою ж, як в strcmp.
-int my_str_cmp_cstr(const my_str_t *str1, const char *cstr2);
+int my_str_cmp_cstr(const my_str_t *str1, const char *cstr2){
+	my_str_t str2;
+	my_str_from_cstr(&str2, cstr2, sizeof(cstr2) + 1);
+	int fin = my_str_cmp(str1, &str2);
+	return fin;
+}
 
 //! Знайти перший символ в стрічці, повернути його номер
 //! або (size_t)(-1), якщо не знайдено. from -- місце, з якого починати шукати.
 //! Якщо більше за розмір -- вважати, що не знайдено.
-size_t my_str_find_c(const my_str_t *str, char tofind, size_t from);
+size_t my_str_find_c(const my_str_t *str, char tofind, size_t from) {
+	// mykyta
+	if (from > str->size_m) return -1;
+	// не проходить по циклу
+	printf("fff");
+	for (int i = from; i < str->size_m; i++) {
+		if (str->data[i] == tofind) {
+			return i;
+		}
+	}
+	return -1;
+}
 
 //! Знайти символ в стрічці, для якого передана
 //! функція повернула true, повернути його номер
 //! або (size_t)(-1), якщо не знайдено:
-size_t my_str_find_if(const my_str_t *str, int (*predicat)(int));
+size_t my_str_find_if(const my_str_t *str, int (*predicat)(int)) {
+	for (size_t i=0; i < str->size_m; i++) {
+		if (predicat(str->data[i]) == 1) {
+			printf("%c\n", str->data[i]);
+			return i;
+		}
+	}
+	return (size_t) -1;
+}
+
 
 //!===========================================================================
 //! Ввід-вивід
 //!===========================================================================
+
+//! На відміну від my_str_read_file(), яка читає до кінця файлу,
+//! читає по вказаний delimiter, за потреби
+//! збільшує стрічку.
+//! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
+int my_str_read_file_delim(my_str_t *str, FILE *file, char delimiter) {
+	int current_c;
+	str->size_m = 0;
+	while ((current_c = fgetc(file)) != delimiter) {
+//		printf("%c", current_c);
+		if (current_c == EOF) {
+			break;
+		}
+		if (my_str_pushback(str, current_c) != 0) {
+			my_str_pushback(str, current_c);
+			return -1;
+		}
+	}
+	return 0;
+}
 
 //! Прочитати стрічку із файлу. Читає цілий файл.
 //! Не давайте читанню вийти за межі буфера! За потреби --
 //! збільшуйте буфер.
 //! Рекомендую скористатися fgets().
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_read_file(my_str_t *str, FILE *file);
+int my_str_read_file(my_str_t *str, FILE *file) {
+	 my_str_read_file_delim(str, file, EOF);
+	return 0;
+}
 
 //! Аналог my_str_read_file, із stdin.
 int my_str_read(my_str_t *str);
@@ -410,27 +502,15 @@ int my_str_write_file(const my_str_t *str, FILE *file);
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_write(const my_str_t *str, FILE *file);
 
-//! На відміну від my_str_read_file(), яка читає до кінця файлу,
-//! читає по вказаний delimiter, за потреби
-//! збільшує стрічку.
-//! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_read_file_delim(my_str_t *str, FILE *file, char delimiter);
-
 
 int main() {
 	my_str_t solid;
-	my_str_t solid_2;
+//	my_str_t solid_2;
 	my_str_create(&solid, 0);
-	my_str_create(&solid_2, 0);
-	char c[] = "the wooden bober";
-	my_str_from_cstr(&solid, c, sizeof(c) + 1);
-//	my_str_from_cstr(&solid_2, "FUCKK", sizeof(5) + 1);
-
-//	printf("%i %i\n", solid.capacity_m, solid.size_m);
-//	printf("Cstring %s\n", c);
-//	printf("%s %i %i\n", solid.data, solid.capacity_m, solid.size_m);
-	my_str_substr(&solid, &solid_2, 0,2);
-//	my_str_append(&solid, &solid_2);
-//	my_str_append_cstr(&solid, "AAAAAAAa");
-	printf("%c %i %i\n",solid_2.data[1], solid_2.capacity_m, solid_2.size_m);
-	}
+//	my_str_create(&solid_2, 0);
+//	char c[] = "the wooden bober";
+//	my_str_from_cstr(&solid, c, sizeof(c) + 1);
+	FILE *file = fopen( "test.txt" , "r");
+	my_str_read_file_delim(&solid, file, 'O');
+	printf("%c", solid.data[1]);
+}
