@@ -365,7 +365,26 @@ int my_str_resize(my_str_t *str, size_t new_size, char sym){
 //! Знайти першу підстрічку в стрічці, повернути номер її
 //! початку або (size_t)(-1), якщо не знайдено. from -- місце, з якого починати шукати.
 //! Якщо більше за розмір -- вважати, що не знайдено.
-size_t my_str_find(const my_str_t *str, const my_str_t *tofind, size_t from);
+size_t my_str_find(const my_str_t *str, const my_str_t *tofind, size_t from) {
+	if (from > str->size_m) {
+		return (size_t) (-1);
+	}
+	size_t k = 0;
+	int i = 0;
+	for (size_t n = from; n < str->size_m; n++) {
+		if (str->data[n] == tofind->data[k]) {
+			size_t start = k;
+			if (tofind->size_m == k + 1) {
+				return k;
+			}
+			else {
+				k++;
+			}
+
+		}
+	}
+	return (size_t) -1;
+}
 
 //! Порівняти стрічки, повернути 0, якщо рівні (за вмістом!)
 //! -1 (або інше від'ємне значення), якщо перша менша,
@@ -412,7 +431,16 @@ size_t my_str_find_c(const my_str_t *str, char tofind, size_t from) {
 //! Знайти символ в стрічці, для якого передана
 //! функція повернула true, повернути його номер
 //! або (size_t)(-1), якщо не знайдено:
-size_t my_str_find_if(const my_str_t *str, int (*predicat)(int));
+size_t my_str_find_if(const my_str_t *str, int (*predicat)(int)) {
+	for (size_t i=0; i < str->size_m; i++) {
+		if (predicat(str->data[i]) == 1) {
+			printf("%c\n", str->data[i]);
+			return i;
+		}
+	}
+	return (size_t) -1;
+}
+
 
 //!===========================================================================
 //! Ввід-вивід
