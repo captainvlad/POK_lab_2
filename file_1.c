@@ -217,7 +217,35 @@ int my_str_popback(my_str_t *str){
 //! (Старий вміст стрічки перед тим звільняє, за потреби).
 //! Повертає 0, якщо успішно, різні від'ємні числа для діагностики
 //! проблеми некоректних аргументів.
-int my_str_copy(const my_str_t *from, my_str_t *to, int reserve);
+int my_str_copy(const my_str_t *from, my_str_t *to, int reserve) {
+	if (from == NULL) {
+		return -1;     //check the arguments
+	}
+	else if (to == NULL) {
+		return -2;
+	}
+
+	size_t buf;
+	if (reserve == 1) {
+		buf = from->capacity_m;
+	}
+	else {
+		buf = from->size_m;
+	}
+
+	if (to->size_m > 0) {
+		free(to);
+	}
+
+	my_str_reserve(to, buf);
+	for (size_t i=0; i < from->size_m; i++) {
+		to->data[i] = from->data[i];
+		to->size_m += 1;
+	}
+	return 0;
+
+}
+
 
 //! Очищає стрічку -- робить її порожньою. Складність має бути О(1).
 //! Уточнення (чомусь ця ф-ція викликала багато непорозумінь):
