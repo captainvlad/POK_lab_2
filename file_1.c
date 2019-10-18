@@ -310,7 +310,14 @@ int my_str_substr(my_str_t *from, my_str_t *to, size_t beg, size_t end){
 
 //! C-string варіант my_str_substr().
 //! Вважати, що в цільовій С-стрічці достатньо місц.
-int my_str_substr_cstr(const my_str_t *from, char *to, size_t beg, size_t end);
+int my_str_substr_cstr(const my_str_t *from, char *to, size_t beg, size_t end){
+	if (beg > from->size_m || beg > end){
+		return -1;
+	}
+	for (int i = 0; i < end - beg; i++){
+		to[i] = my_str_getc(from, beg + i);
+	}
+}
 
 //!===========================================================================
 //! Маніпуляції розміром стрічки
@@ -323,7 +330,9 @@ int my_str_substr_cstr(const my_str_t *from, char *to, size_t beg, size_t end);
 //! так, щоб capacity_m == size_t. Єдиний "офіційний"
 //! спосіб зменшити фактичний розмір буфера.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_shrink_to_fit(my_str_t *str);
+int my_str_shrink_to_fit(my_str_t *str){
+	str->capacity_m = str->size_m;
+}
 
 //! Якщо new_size менший за поточний розмір -- просто
 //! відкидає зайві символи (зменшуючи size_m). Якщо
@@ -333,7 +342,20 @@ int my_str_shrink_to_fit(my_str_t *str);
 //! Сподіваюся, різниця між розміром буфера та фактичним
 //! розміром стрічки зрозуміла?
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_resize(my_str_t *str, size_t new_size, char sym);
+int my_str_resize(my_str_t *str, size_t new_size, char sym){
+	if (new_size < str->size_m){
+		str->size_m = new_size;
+	}
+	else if (new_size > str->size_m){
+		if (new_size > str->capacity_m){
+			my_str_reserve(str, new_size);
+		}
+		for (int i = 0; i < new_size - str->size_m; i++){
+			str->data[str->size_m + 1] = sym;
+		}
+	}
+	return 0;
+}
 
 //!===========================================================================
 //! Функції пошуку та порівняння
