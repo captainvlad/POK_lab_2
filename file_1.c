@@ -396,7 +396,17 @@ int my_str_cmp_cstr(const my_str_t *str1, const char *cstr2){
 //! Знайти перший символ в стрічці, повернути його номер
 //! або (size_t)(-1), якщо не знайдено. from -- місце, з якого починати шукати.
 //! Якщо більше за розмір -- вважати, що не знайдено.
-size_t my_str_find_c(const my_str_t *str, char tofind, size_t from);
+size_t my_str_find_c(const my_str_t *str, char tofind, size_t from) {
+	if (from > str->size_m) {
+		return (size_t) (-1);
+	}
+	for (int i= (int)from; i < (int) str->size_m; i++) {
+		if (str->data[i] == tofind) {
+			return (size_t) i;
+		}
+	}
+	return (size_t) (-1);
+}
 
 //! Знайти символ в стрічці, для якого передана
 //! функція повернула true, повернути його номер
