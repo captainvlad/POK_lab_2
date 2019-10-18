@@ -232,7 +232,40 @@ int my_str_popback(my_str_t *str){
 //! (Старий вміст стрічки перед тим звільняє, за потреби).
 //! Повертає 0, якщо успішно, різні від'ємні числа для діагностики
 //! проблеми некоректних аргументів.
-int my_str_copy(const my_str_t *from, my_str_t *to, int reserve);
+//! Копіює стрічку. Якщо reserve == true,
+//! то із тим же розміром буферу, що й вихідна,
+//! інакше -- із буфером мінімального достатнього розміру.
+//! (Старий вміст стрічки перед тим звільняє, за потреби).
+//! Повертає 0, якщо успішно, різні від'ємні числа для діагностики
+//! проблеми некоректних аргументів.
+int my_str_copy(const my_str_t *from, my_str_t *to, int reserve) {
+	if (from == NULL) {
+		return -1;     //check the arguments
+	}
+	else if (to == NULL) {
+		return -2;
+	}
+
+	size_t buf;
+	if (reserve == 1) {
+		buf = from->capacity_m;
+	}
+	else {
+		buf = from->size_m;
+	}
+
+	if (to->size_m > 0) {
+		free(to);
+	}
+
+	my_str_reserve(to, buf);
+	for (size_t i=0; i < from->size_m; i++) {
+		to->data[i] = from->data[i];
+		to->size_m += 1;
+	}
+	return 0;
+
+}
 
 //! Очищає стрічку -- робить її порожньою. Складність має бути О(1).
 //! Уточнення (чомусь ця ф-ція викликала багато непорозумінь):
@@ -487,12 +520,17 @@ int my_str_read_file_delim(my_str_t *str, FILE *file, char delimiter) {
 //! Рекомендую скористатися fgets().
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_read_file(my_str_t *str, FILE *file) {
-	 my_str_read_file_delim(str, file, EOF);
-	return 0;
+	int ch;
+	while((ch = fgetc(file)) != EOF) {
+		printf("%c", ch);
+	}
+	fclose(file);
 }
 
 //! Аналог my_str_read_file, із stdin.
-int my_str_read(my_str_t *str);
+int my_str_read(my_str_t *str){
+
+}
 
 //! Записати стрічку в файл:
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
