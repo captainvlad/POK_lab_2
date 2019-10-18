@@ -511,25 +511,21 @@ int my_str_read_file(my_str_t *str, FILE *file) {
 //! читає по вказаний delimiter, за потреби
 //! збільшує стрічку.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_read_file_delim(my_str_t *str, FILE *file, char delimiter) {
-	int current_c;
-	str->size_m = 0;
-	while ((current_c = fgetc(file)) != delimiter) {
-//		printf("%c", current_c);
-		if (current_c == EOF) {
-			break;
-		}
-		if (my_str_pushback(str, current_c) != 0) {
-			my_str_pushback(str, current_c);
-			return -1;
-		}
-	}
-	return 0;
-}
+int my_str_read_file_delim(my_str_t *str, FILE *file, char delimiter);
 
 //! Аналог my_str_read_file, із stdin.
-int my_str_read(my_str_t *str){
-
+int my_str_read(my_str_t *str) {
+	char sym = '\0';
+	int i = 0;
+	while (sym != '\n') {
+		sym = getchar();
+		if (str->size_m == str->capacity_m) {
+			my_str_reserve(str, str->capacity_m * 2);
+		}
+		str->data[i] = sym;
+		i++;
+	}
+	return 0;
 }
 
 //! Записати стрічку в файл:
@@ -545,10 +541,27 @@ int main() {
 	my_str_t solid;
 //	my_str_t solid_2;
 	my_str_create(&solid, 0);
+	my_str_reserve(&solid, 3);
 //	my_str_create(&solid_2, 0);
 //	char c[] = "the wooden bober";
 //	my_str_from_cstr(&solid, c, sizeof(c) + 1);
-	FILE *file = fopen( "test.txt" , "r");
-	my_str_read_file_delim(&solid, file, 'O');
-	printf("%c", solid.data[1]);
+//	FILE *file = fopen( "test.txt" , "r");
+//	my_str_read_file_delim(&solid, file, 'O');
+//	printf("%c", solid.data[1]);
+//	printf("%i", stdin);
+	my_str_read(&solid);
+	solid.data[solid.capacity_m + 1] = '\0';
+	printf("%s", solid.data);
+
+//	solid.capacity_m = 1;
+//	char ch;
+//	ch = getchar();
+//	printf("%c", ch);
+
+//	int k = 0;
+//	if (solid.data[solid.capacity_m] != 0){
+//		my_str_reserve(&solid, solid.capacity_m + 1);
+//		fgets(solid.data, 5, stdin);
+//		printf("%i", solid.data[4]);
+//	}
 }
