@@ -502,66 +502,76 @@ size_t my_str_find_if(const my_str_t *str, int (*predicat)(int)) {
 int my_str_read_file(my_str_t *str, FILE *file) {
 	int ch;
 	while((ch = fgetc(file)) != EOF) {
-		printf("%c", ch);
+//		printf("%c", ch);
+		my_str_pushback(str, ch);
 	}
 	fclose(file);
+    return 0;
 }
 
 //! На відміну від my_str_read_file(), яка читає до кінця файлу,
 //! читає по вказаний delimiter, за потреби
 //! збільшує стрічку.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_read_file_delim(my_str_t *str, FILE *file, char delimiter);
+int my_str_read_file_delim(my_str_t *str, FILE *file, char delimiter) {
+    int ch;
+    while((ch = fgetc(file)) != EOF) {
+//		printf("%c", ch);
+        my_str_pushback(str, ch);
+        if (ch == delimiter) {
+            break;
+        }
+    }
+    fclose(file);
+    return 0;
+}
 
 //! Аналог my_str_read_file, із stdin.
-int my_str_read(my_str_t *str) {
-	char sym = '\0';
-	int i = 0;
-	while (sym != '\n') {
-		sym = getchar();
-		if (str->size_m == str->capacity_m) {
-			my_str_reserve(str, str->capacity_m * 2);
-		}
-		str->data[i] = sym;
-		i++;
-	}
-	return 0;
+int my_str_read(my_str_t *str){
+
 }
 
 //! Записати стрічку в файл:
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_write_file(const my_str_t *str, FILE *file);
+int my_str_write_file(const my_str_t *str, FILE *file) {
+    // mykyta
+    if (my_str_empty(str) == 0) {
+        return -1;
+    }
+    if(file == NULL) {
+        return -2;
+    }
+    for (int i = 0; i < my_str_size(str); i++) {
+        fprintf(file, "%c", str->data[i]);
+    }
+    return 0;
+}
 
 //! Записати стрічку на консоль:
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_write(const my_str_t *str, FILE *file);
+int my_str_write(const my_str_t* str) {
+    if (my_str_empty(str) == 0) {
+        return -1;
+    }
+    for (int i = 0; i < my_str_size(str); i++) {
+        printf("%c", str->data[i]);
+    }
+    return 0;
+}
 
 
 int main() {
 	my_str_t solid;
 //	my_str_t solid_2;
 	my_str_create(&solid, 0);
-	my_str_reserve(&solid, 3);
 //	my_str_create(&solid_2, 0);
-//	char c[] = "the wooden bober";
-//	my_str_from_cstr(&solid, c, sizeof(c) + 1);
-//	FILE *file = fopen( "test.txt" , "r");
-//	my_str_read_file_delim(&solid, file, 'O');
-//	printf("%c", solid.data[1]);
-//	printf("%i", stdin);
-	my_str_read(&solid);
-	solid.data[solid.capacity_m + 1] = '\0';
-	printf("%s", solid.data);
-
-//	solid.capacity_m = 1;
-//	char ch;
-//	ch = getchar();
-//	printf("%c", ch);
-
-//	int k = 0;
-//	if (solid.data[solid.capacity_m] != 0){
-//		my_str_reserve(&solid, solid.capacity_m + 1);
-//		fgets(solid.data, 5, stdin);
-//		printf("%i", solid.data[4]);
-//	}
+	char c[] = "the wooden bober";
+	my_str_from_cstr(&solid, c, sizeof(c) + 1);
+//	FILE *file = fopen( "1.txt" , "r");
+//	my_str_read_file(&solid, file);
+//	printf("%i", solid.size_m);
+//	printf("%c", solid.data[0]);
+//    FILE *file  = fopen("3.txt", "w");
+//    my_str_write_file(&solid, file);
+    my_str_write(&solid);
 }
