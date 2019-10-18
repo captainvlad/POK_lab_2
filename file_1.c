@@ -447,7 +447,6 @@ size_t my_str_find_c(const my_str_t *str, char tofind, size_t from) {
     // mykyta
     if (from > str->size_m) return -1;
     // не проходить по циклу
-    printf("fff");
     for (int i = from; i < str->size_m; i++) {
         if (str->data[i] == tofind) {
             return i;
@@ -479,7 +478,13 @@ size_t my_str_find_if(const my_str_t *str, int (*predicat)(int)) {
 //! збільшуйте буфер.
 //! Рекомендую скористатися fgets().
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_read_file(my_str_t *str, FILE *file);
+int my_str_read_file(my_str_t *str, FILE *file) {
+    int ch;
+    while((ch = fgetc(file)) != EOF) {
+        printf("%c", ch);
+    }
+    fclose(file);
+}
 
 //! Аналог my_str_read_file, із stdin.
 int my_str_read(my_str_t *str);
@@ -500,20 +505,26 @@ int my_str_read_file_delim(my_str_t *str, FILE *file, char delimiter);
 
 
 int main() {
-	my_str_t solid;
-	my_str_t solid_2;
-	my_str_create(&solid, 0);
-	my_str_create(&solid_2, 0);
-	char c[] = "the wooden bober";
-	my_str_from_cstr(&solid, c, sizeof(c) + 1);
-//	my_str_from_cstr(&solid_2, "FUCKK", sizeof(5) + 1);
+    my_str_t solid;
+    my_str_t solid_2;
+    my_str_create(&solid, 0);
+    my_str_create(&solid_2, 0);
+    char c[] = "the wooden bober";
+    my_str_from_cstr(&solid, c, sizeof(c) + 1);
+    my_str_substr(&solid, &solid_2, 0, 2);
+    FILE *file = fopen( "1.txt" , "r");
+    my_str_read_file(&solid, file);
+}
 
-//	printf("%i %i\n", solid.capacity_m, solid.size_m);
-//	printf("Cstring %s\n", c);
-//	printf("%s %i %i\n", solid.data, solid.capacity_m, solid.size_m);
-	my_str_substr(&solid, &solid_2, 0,2);
-//	my_str_append(&solid, &solid_2);
-//	my_str_append_cstr(&solid, "AAAAAAAa");
-    printf("ddddd\n",  my_str_find_c(c, 98, 1000));
-//	printf("%c %i %i\n",solid_2.data[1], solid_2.capacity_m, solid_2.size_m);
-	}
+
+
+
+
+
+
+
+
+
+
+
+
