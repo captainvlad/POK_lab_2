@@ -270,19 +270,43 @@ int my_str_insert_cstr(my_str_t *str, char *from, size_t pos){
 //! Додати стрічку в кінець.
 //! За потреби -- збільшує буфер.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_append(my_str_t *str, const my_str_t *from);
-
+int my_str_append(my_str_t *str, my_str_t *from) {
+	// написати помилки -1, -2
+	my_str_insert(str, from, my_str_size(str));
+	return 0;
+}
 //! Додати С-стрічку в кінець.
 //! За потреби -- збільшує буфер.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_append_cstr(my_str_t *str, const char *from);
+int my_str_append_cstr(my_str_t *str, char *from){
+	for (int i = 0; i < sizeof(from); i++){
+		if (my_str_pushback(str, from[i]) == -2){
+			my_str_reserve(str, str->capacity_m * 2);
+			my_str_pushback(str, from[i]);
+		}
+	}
+}
 
 //! Скопіювати підстрічку, із beg включно, по end не включно ([beg, end)).
 //! Якщо end за межами початкової стрічки -- це не помилка, копіювати всі
 //! символи до кінця. beg має бути в її межах -- якщо beg>size, це помилка.
 //! За потреби -- збільшує буфер.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
-int my_str_substr(const my_str_t *from, my_str_t *to, size_t beg, size_t end);
+int my_str_substr(my_str_t *from, my_str_t *to, size_t beg, size_t end){
+	if (end > from->size_m){
+		end = from->size_m;
+	}
+	else if (beg > from->size_m){
+		return -1;
+	}
+	for (int i = 0; i < end - beg; i++){
+		if (my_str_pushback(to, from->data[beg + i]) == -2){
+			my_str_reserve(to, 2 * to->size_m);
+			my_str_pushback(to, from->data[beg + i]);
+		}
+		my_str_pushback(to, from->data[beg + i]);
+	}
+}
 
 //! C-string варіант my_str_substr().
 //! Вважати, що в цільовій С-стрічці достатньо місц.
@@ -375,13 +399,16 @@ int main() {
 	my_str_t solid;
 	my_str_t solid_2;
 	my_str_create(&solid, 0);
+	my_str_create(&solid_2, 0);
 	char c[] = "the wooden bober";
 	my_str_from_cstr(&solid, c, sizeof(c) + 1);
-	my_str_from_cstr(&solid_2, "FUCKK", sizeof(5) + 1);
+//	my_str_from_cstr(&solid_2, "FUCKK", sizeof(5) + 1);
 
 //	printf("%i %i\n", solid.capacity_m, solid.size_m);
 //	printf("Cstring %s\n", c);
-	printf("%s %i %i\n", solid.data, solid.capacity_m, solid.size_m);
-	my_str_insert_cstr(&solid, "FUCK", 1);
-//	printf("%c %i %i\n", solid.data[10], solid.capacity_m, solid.size_m);
+//	printf("%s %i %i\n", solid.data, solid.capacity_m, solid.size_m);
+	my_str_substr(&solid, &solid_2, 0,2);
+//	my_str_append(&solid, &solid_2);
+//	my_str_append_cstr(&solid, "AAAAAAAa");
+	printf("%c %i %i\n",solid_2.data[1], solid_2.capacity_m, solid_2.size_m);
 	}
