@@ -385,7 +385,13 @@ int my_str_cmp(const my_str_t *str1, const my_str_t *str2){
 //! -1 (або інше від'ємне значення), якщо перша менша,
 //! 1 (або інше додатне значення) -- якщо друга.
 //! Поведінка має бути такою ж, як в strcmp.
-int my_str_cmp_cstr(const my_str_t *str1, const char *cstr2);
+int my_str_cmp_cstr(const my_str_t *str1, const char *cstr2){
+    my_str_t str2;
+    my_str_from_cstr(&str2, cstr2, sizeof(cstr2) + 1);
+    int fin = my_str_cmp(str1, &str2);
+    printf("1: %s %i  | 2: %s %i \n", str1->data, str1->size_m, str2.data, str2.size_m);
+    return fin;
+}
 
 //! Знайти перший символ в стрічці, повернути його номер
 //! або (size_t)(-1), якщо не знайдено. from -- місце, з якого починати шукати.
