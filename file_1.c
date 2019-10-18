@@ -332,6 +332,7 @@ int my_str_substr_cstr(const my_str_t *from, char *to, size_t beg, size_t end){
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_shrink_to_fit(my_str_t *str){
 	str->capacity_m = str->size_m;
+	return 0;
 }
 
 //! Якщо new_size менший за поточний розмір -- просто
@@ -389,14 +390,24 @@ int my_str_cmp_cstr(const my_str_t *str1, const char *cstr2){
     my_str_t str2;
     my_str_from_cstr(&str2, cstr2, sizeof(cstr2) + 1);
     int fin = my_str_cmp(str1, &str2);
-    printf("1: %s %i  | 2: %s %i \n", str1->data, str1->size_m, str2.data, str2.size_m);
     return fin;
 }
 
 //! Знайти перший символ в стрічці, повернути його номер
 //! або (size_t)(-1), якщо не знайдено. from -- місце, з якого починати шукати.
 //! Якщо більше за розмір -- вважати, що не знайдено.
-size_t my_str_find_c(const my_str_t *str, char tofind, size_t from);
+size_t my_str_find_c(const my_str_t *str, char tofind, size_t from) {
+    // mykyta
+    if (from > str->size_m) return -1;
+    // не проходить по циклу
+    printf("fff");
+    for (int i = from; i < str->size_m; i++) {
+        if (str->data[i] == tofind) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 //! Знайти символ в стрічці, для якого передана
 //! функція повернула true, повернути його номер
@@ -447,5 +458,6 @@ int main() {
 	my_str_substr(&solid, &solid_2, 0,2);
 //	my_str_append(&solid, &solid_2);
 //	my_str_append_cstr(&solid, "AAAAAAAa");
-	printf("%c %i %i\n",solid_2.data[1], solid_2.capacity_m, solid_2.size_m);
+    printf("ddddd\n",  my_str_find_c(c, 98, 1000));
+//	printf("%c %i %i\n",solid_2.data[1], solid_2.capacity_m, solid_2.size_m);
 	}
