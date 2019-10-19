@@ -3,8 +3,6 @@
 #include <malloc.h>
 #include <mem.h>
 
-#include <assert.h>
-
 typedef struct {
 	size_t capacity_m; // Розмір блока
 	size_t size_m;       // Фактичний розмір стрічки
@@ -198,17 +196,16 @@ const char *my_str_get_cstr(my_str_t *str){
 //}
 
 int my_str_pushback(my_str_t *str, char c) {
-	if (str == NULL) {
-        return -1;
-	}
-	if (str->size_m == str->capacity_m - 1) {
-	    if (my_str_reserve(str, (str->capacity_m) * 2) == -1) {
-	        return -2;
-	    }
-	}
+	// Add a symbol (character) in the end of the my_str
+	// return 0 if there no mistakes
+	// return -1 if zero pointer
+	// return -2 if it is impossible to reserve new memory
+	if (str == NULL)
+		return -1;
+	if (my_str_reserve(str, str->size_m + 1) == -1)
+		return -2;
 	str->data[str->size_m] = c;
 	str->size_m++;
-	str->data[str->size_m + 1] = '\0';
 	return 0;
 }
 
@@ -283,7 +280,6 @@ void my_str_clear(my_str_t *str){
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_insert_c(my_str_t *str, char c, size_t pos){
 //	printf("%i %i \n", str->size_m, str->capacity_m);
-    if (pos > str->size_m) return -1;
 	if (str->size_m == str->capacity_m){
 		my_str_reserve(str, str->capacity_m + 1);
 	}
@@ -303,9 +299,9 @@ int my_str_insert_c(my_str_t *str, char c, size_t pos){
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_insert(my_str_t *str, my_str_t *from, size_t pos){
 	for (int i = 0; i < sizeof(from); i++){
-        my_str_insert_c(str, from->data[i], pos + i);
+		my_str_insert_c(str, from->data[i], pos + i);
 	}
-    my_str_pushback(str, '\0');
+	my_str_pushback(str, '\0');
 	return 0;
 }
 
@@ -323,19 +319,20 @@ int my_str_insert_cstr(my_str_t *str, char *from, size_t pos){
 //! За потреби -- збільшує буфер.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_append(my_str_t *str, my_str_t *from) {
-	return my_str_insert(str, from, my_str_size(str));
+	// написати помилки -1, -2
+	my_str_insert(str, from, my_str_size(str));
+	return 0;
 }
 //! Додати С-стрічку в кінець.
 //! За потреби -- збільшує буфер.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_append_cstr(my_str_t *str, char *from){
-    return my_str_insert_cstr(str, from, (my_str_size(str) - 1));
-//	for (int i = 0; i < sizeof(from); i++){
-//		if (my_str_pushback(str, from[i]) == -2){
-//			my_str_reserve(str, str->capacity_m * 2);
-//			my_str_pushback(str, from[i]);
-//		}
-//	}
+	for (int i = 0; i < sizeof(from); i++){
+		if (my_str_pushback(str, from[i]) == -2){
+			my_str_reserve(str, str->capacity_m * 2);
+			my_str_pushback(str, from[i]);
+		}
+	}
 }
 
 //! Скопіювати підстрічку, із beg включно, по end не включно ([beg, end)).
@@ -395,17 +392,15 @@ int my_str_shrink_to_fit(my_str_t *str){
 //! розміром стрічки зрозуміла?
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_resize(my_str_t *str, size_t new_size, char sym){
-    int repeater = new_size - str->size_m;
 	if (new_size < str->size_m){
 		str->size_m = new_size;
 	}
 	else if (new_size > str->size_m){
-        if (new_size > str->capacity_m){
+		if (new_size > str->capacity_m){
 			my_str_reserve(str, new_size);
 		}
-		for (int i = 0; i < repeater; i++){
-			str->data[str->size_m] = sym;
-			str->size_m++;
+		for (int i = 0; i < new_size - str->size_m; i++){
+			str->data[str->size_m + 1] = sym;
 		}
 	}
 	return 0;
@@ -419,38 +414,24 @@ int my_str_resize(my_str_t *str, size_t new_size, char sym){
 //! початку або (size_t)(-1), якщо не знайдено. from -- місце, з якого починати шукати.
 //! Якщо більше за розмір -- вважати, що не знайдено.
 size_t my_str_find(const my_str_t *str, const my_str_t *tofind, size_t from) {
-    if (from > str->size_m) {
-        return -1;
-    }
-    size_t start = -1;
-    size_t k = 0;
-    for (size_t i = from; i < str->size_m; i++) {
-        printf("i: %zu, start: %zu, k: %zu\n", i, start, k);
-        if (str->data[i] == tofind->data[k]) {
-            if (k == 0) {
-                start = i;
-            }
-            if (k == tofind->size_m - 1) {
-                return start;
-            }
-            k++;
+	if (from > str->size_m) {
+		return (size_t) (-1);
+	}
+	size_t k = 0;
+	int i = 0;
+	for (size_t n = from; n < str->size_m; n++) {
+		if (str->data[n] == tofind->data[k]) {
+			size_t start = k;
+			if (tofind->size_m == k + 1) {
+				return k;
+			}
+			else {
+				k++;
+			}
 
-        }
-        else if (str->data[i] == tofind->data[0]) {
-            k = 0;
-            start = i;
-            if (k == tofind->size_m - 1) {
-                return start;
-            }
-            k++;
-        }
-        else {
-            start = -1;
-            k = 0;
-        }
-
-    }
-    return start;
+		}
+	}
+	return (size_t) -1;
 }
 
 //! Порівняти стрічки, повернути 0, якщо рівні (за вмістом!)
@@ -483,15 +464,16 @@ int my_str_cmp_cstr(const my_str_t *str1, const char *cstr2){
 //! або (size_t)(-1), якщо не знайдено. from -- місце, з якого починати шукати.
 //! Якщо більше за розмір -- вважати, що не знайдено.
 size_t my_str_find_c(const my_str_t *str, char tofind, size_t from) {
-    if (from > str->size_m) {
-        return (size_t) (-1);
-    }
-    for (int i= (int)from; i < (int) str->size_m; i++) {
-        if (str->data[i] == tofind) {
-            return (size_t) i;
-        }
-    }
-    return (size_t) (-1);
+	// mykyta
+	if (from > str->size_m) return -1;
+	// не проходить по циклу
+	printf("fff");
+	for (int i = from; i < str->size_m; i++) {
+		if (str->data[i] == tofind) {
+			return i;
+		}
+	}
+	return -1;
 }
 
 //! Знайти символ в стрічці, для якого передана
@@ -521,7 +503,6 @@ int my_str_read_file(my_str_t *str, FILE *file) {
 	int ch;
 	while((ch = fgetc(file)) != EOF) {
 //		printf("%c", ch);
-//        my_str_append(str, ch);
 		my_str_pushback(str, ch);
 	}
 	fclose(file);
@@ -596,20 +577,11 @@ int main() {
 //	my_str_create(&solid_2, 0);
 	char c[] = "the wooden bober";
 	my_str_from_cstr(&solid, c, sizeof(c) + 1);
-    my_str_write(&solid);
-    printf("\n");
-	my_str_resize(&solid, ((solid.size_m) - 6), 39);
-    my_str_write(&solid);
-    printf("\n");
-    my_str_resize(&solid, ((solid.size_m) + 6), 39);
-	my_str_write(&solid);
-//	printf("%i", my_str_find_c(&solid, 119, 0));
-//	FILE *file = fopen("1.txt" , "r");
+//	FILE *file = fopen( "1.txt" , "r");
 //	my_str_read_file(&solid, file);
 //	printf("%i", solid.size_m);
-//    my_str_write(&solid);
 //	printf("%c", solid.data[0]);
 //    FILE *file  = fopen("3.txt", "w");
 //    my_str_write_file(&solid, file);
-//    my_str_write(&solid);
+    my_str_write(&solid);
 }
