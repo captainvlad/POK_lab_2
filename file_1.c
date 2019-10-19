@@ -479,17 +479,17 @@ int my_str_cmp_cstr(const my_str_t *str1, const char *cstr2){
 //! або (size_t)(-1), якщо не знайдено. from -- місце, з якого починати шукати.
 //! Якщо більше за розмір -- вважати, що не знайдено.
 size_t my_str_find_c(const my_str_t *str, char tofind, size_t from) {
-	// mykyta
-	if (from > str->size_m) return -1;
-	// не проходить по циклу
-	printf("fff");
-	for (int i = from; i < str->size_m; i++) {
+	if (from > str->size_m) {
+		return (size_t) (-1);
+	}
+	for (int i= (int)from; i < (int) str->size_m; i++) {
 		if (str->data[i] == tofind) {
-			return i;
+			return (size_t) i;
 		}
 	}
-	return -1;
+	return (size_t) (-1);
 }
+
 
 //! Знайти символ в стрічці, для якого передана
 //! функція повернула true, повернути його номер
