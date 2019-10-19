@@ -527,8 +527,18 @@ int my_str_read_file_delim(my_str_t *str, FILE *file, char delimiter) {
 }
 
 //! Аналог my_str_read_file, із stdin.
-int my_str_read(my_str_t *str){
-
+int my_str_read(my_str_t *str) {
+	char sym = '\0';
+	int i = 0;
+	while (sym != '\n') {
+		sym = getchar();
+		if (str->size_m == str->capacity_m) {
+			my_str_reserve(str, str->capacity_m * 2);
+		}
+		str->data[i] = sym;
+		i++;
+	}
+	return 0;
 }
 
 //! Записати стрічку в файл:
