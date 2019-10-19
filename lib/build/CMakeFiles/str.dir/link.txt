@@ -1,0 +1,1 @@
+/mingw64/bin/cc.exe -fPIC   -shared  -o libstr.so CMakeFiles/str.dir/stringg.c.obj 

@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/c/Users/Vladyslav Zadorozhny/Desktop/Study/POK/lab_2/lib/stringg.c
+stdio.h
+-
+stdlib.h
+-
+malloc.h
+-
+mem.h
+-
+
