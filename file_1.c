@@ -167,7 +167,7 @@ int my_str_putc(my_str_t *str, size_t index, char c){
 //! Якщо в буфері було зарезервовано на байт більше за макс. розмір, можна
 //! просто додати нульовий символ в кінці та повернути вказівник data.
 const char *my_str_get_cstr(my_str_t *str){
-	str->data[str->capacity_m + 1] = '\0';
+	str->data[str->capacity_m] = '\0';
 	return str->data;
 }
 
@@ -183,32 +183,21 @@ const char *my_str_get_cstr(my_str_t *str){
 //! Повертає 0, якщо успішно,
 //! -1 -- якщо передано нульовий вказівник,
 //! -2 -- помилка виділення додаткової пам'яті.
-//int my_str_pushback(my_str_t *str, char c){
-//	if (str == NULL){
-//		return -1;
-//	}
-//	if (my_str_reserve(str, str->capacity_m + 1) == -1){
-//		return -2;
-//	}
-//	str->data[str->size_m + 1] = c;
-//	str->size_m++;
-//	return 0;
-//}
 
 int my_str_pushback(my_str_t *str, char c) {
-	// Add a symbol (character) in the end of the my_str
-	// return 0 if there no mistakes
-	// return -1 if zero pointer
-	// return -2 if it is impossible to reserve new memory
-	if (str == NULL)
+	if (str == NULL) {
 		return -1;
-	if (my_str_reserve(str, str->size_m + 1) == -1)
-		return -2;
+	}
+	if (str->size_m == str->capacity_m - 1) {
+		if (my_str_reserve(str, (str->capacity_m) * 2) == -1) {
+			return -2;
+		}
+	}
 	str->data[str->size_m] = c;
 	str->size_m++;
+	str->data[str->size_m + 1] = '\0';
 	return 0;
 }
-
 //! Викидає символ з кінця.
 //! Повертає його, якщо успішно,
 //! -1 -- якщо передано нульовий вказівник,
@@ -279,7 +268,6 @@ void my_str_clear(my_str_t *str){
 //! За потреби -- збільшує буфер.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_insert_c(my_str_t *str, char c, size_t pos){
-//	printf("%i %i \n", str->size_m, str->capacity_m);
 	if (str->size_m == str->capacity_m){
 		my_str_reserve(str, str->capacity_m + 1);
 	}
