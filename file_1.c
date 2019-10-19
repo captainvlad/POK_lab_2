@@ -196,16 +196,17 @@ const char *my_str_get_cstr(my_str_t *str){
 //}
 
 int my_str_pushback(my_str_t *str, char c) {
-	// Add a symbol (character) in the end of the my_str
-	// return 0 if there no mistakes
-	// return -1 if zero pointer
-	// return -2 if it is impossible to reserve new memory
-	if (str == NULL)
-		return -1;
-	if (my_str_reserve(str, str->size_m + 1) == -1)
-		return -2;
+	if (str == NULL) {
+        return -1;
+	}
+	if (str->size_m == str->capacity_m - 1) {
+	    if (my_str_reserve(str, (str->capacity_m) * 2) == -1) {
+	        return -2;
+	    }
+	}
 	str->data[str->size_m] = c;
 	str->size_m++;
+	str->data[str->size_m + 1] = '\0';
 	return 0;
 }
 
@@ -300,9 +301,9 @@ int my_str_insert_c(my_str_t *str, char c, size_t pos){
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_insert(my_str_t *str, my_str_t *from, size_t pos){
 	for (int i = 0; i < sizeof(from); i++){
-		my_str_insert_c(str, from->data[i], pos + i);
+        my_str_insert_c(str, from->data[i], pos + i);
 	}
-	my_str_pushback(str, '\0');
+    my_str_pushback(str, '\0');
 	return 0;
 }
 
@@ -517,8 +518,8 @@ int my_str_read_file(my_str_t *str, FILE *file) {
 	int ch;
 	while((ch = fgetc(file)) != EOF) {
 //		printf("%c", ch);
-        my_str_append(str, ch);
-//		my_str_pushback(str, ch);
+//        my_str_append(str, ch);
+		my_str_pushback(str, ch);
 	}
 	fclose(file);
     return 0;
@@ -592,12 +593,12 @@ int main() {
 //	my_str_create(&solid_2, 0);
 	char c[] = "the wooden bober";
 	my_str_from_cstr(&solid, c, sizeof(c) + 1);
-//	FILE *file = fopen( "1.txt" , "r");
-//	my_str_read_file(&solid, file);
+	FILE *file = fopen("1.txt" , "r");
+	my_str_read_file(&solid, file);
 //	printf("%i", solid.size_m);
+    my_str_write(&solid);
 //	printf("%c", solid.data[0]);
 //    FILE *file  = fopen("3.txt", "w");
 //    my_str_write_file(&solid, file);
-    my_str_write(&solid);
-
+//    my_str_write(&solid);
 }
