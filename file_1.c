@@ -3,6 +3,8 @@
 #include <malloc.h>
 #include <mem.h>
 
+#include <assert.h>
+
 typedef struct {
 	size_t capacity_m; // Розмір блока
 	size_t size_m;       // Фактичний розмір стрічки
@@ -393,15 +395,17 @@ int my_str_shrink_to_fit(my_str_t *str){
 //! розміром стрічки зрозуміла?
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_resize(my_str_t *str, size_t new_size, char sym){
+    int repeater = new_size - str->size_m;
 	if (new_size < str->size_m){
 		str->size_m = new_size;
 	}
 	else if (new_size > str->size_m){
-		if (new_size > str->capacity_m){
+        if (new_size > str->capacity_m){
 			my_str_reserve(str, new_size);
 		}
-		for (int i = 0; i < new_size - str->size_m; i++){
-			str->data[str->size_m + 1] = sym;
+		for (int i = 0; i < repeater; i++){
+			str->data[str->size_m] = sym;
+			str->size_m++;
 		}
 	}
 	return 0;
@@ -479,16 +483,15 @@ int my_str_cmp_cstr(const my_str_t *str1, const char *cstr2){
 //! або (size_t)(-1), якщо не знайдено. from -- місце, з якого починати шукати.
 //! Якщо більше за розмір -- вважати, що не знайдено.
 size_t my_str_find_c(const my_str_t *str, char tofind, size_t from) {
-	// mykyta
-	if (from > str->size_m) return -1;
-	// не проходить по циклу
-	printf("fff");
-	for (int i = from; i < str->size_m; i++) {
-		if (str->data[i] == tofind) {
-			return i;
-		}
-	}
-	return -1;
+    if (from > str->size_m) {
+        return (size_t) (-1);
+    }
+    for (int i= (int)from; i < (int) str->size_m; i++) {
+        if (str->data[i] == tofind) {
+            return (size_t) i;
+        }
+    }
+    return (size_t) (-1);
 }
 
 //! Знайти символ в стрічці, для якого передана
@@ -593,10 +596,18 @@ int main() {
 //	my_str_create(&solid_2, 0);
 	char c[] = "the wooden bober";
 	my_str_from_cstr(&solid, c, sizeof(c) + 1);
-	FILE *file = fopen("1.txt" , "r");
-	my_str_read_file(&solid, file);
-//	printf("%i", solid.size_m);
     my_str_write(&solid);
+    printf("\n");
+	my_str_resize(&solid, ((solid.size_m) - 6), 39);
+    my_str_write(&solid);
+    printf("\n");
+    my_str_resize(&solid, ((solid.size_m) + 6), 39);
+	my_str_write(&solid);
+//	printf("%i", my_str_find_c(&solid, 119, 0));
+//	FILE *file = fopen("1.txt" , "r");
+//	my_str_read_file(&solid, file);
+//	printf("%i", solid.size_m);
+//    my_str_write(&solid);
 //	printf("%c", solid.data[0]);
 //    FILE *file  = fopen("3.txt", "w");
 //    my_str_write_file(&solid, file);
