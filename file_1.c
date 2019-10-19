@@ -415,24 +415,39 @@ int my_str_resize(my_str_t *str, size_t new_size, char sym){
 //! Якщо більше за розмір -- вважати, що не знайдено.
 size_t my_str_find(const my_str_t *str, const my_str_t *tofind, size_t from) {
 	if (from > str->size_m) {
-		return (size_t) (-1);
+		return -1;
 	}
+	size_t start = -1;
 	size_t k = 0;
-	int i = 0;
-	for (size_t n = from; n < str->size_m; n++) {
-		if (str->data[n] == tofind->data[k]) {
-			size_t start = k;
-			if (tofind->size_m == k + 1) {
-				return k;
+	for (size_t i = from; i < str->size_m; i++) {
+
+		if (str->data[i] == tofind->data[k]) {
+			if (k == 0) {
+				start = i;
 			}
-			else {
-				k++;
+			if (k == tofind->size_m - 1) {
+				return start;
 			}
+			k++;
 
 		}
+		else if (str->data[i] == tofind->data[0]) {
+			k = 0;
+			start = i;
+			if (k == tofind->size_m - 1) {
+				return start;
+			}
+			k++;
+		}
+		else {
+			start = -1;
+			k = 0;
+		}
+
 	}
-	return (size_t) -1;
+	return start;
 }
+
 
 //! Порівняти стрічки, повернути 0, якщо рівні (за вмістом!)
 //! -1 (або інше від'ємне значення), якщо перша менша,
