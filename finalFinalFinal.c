@@ -15,6 +15,14 @@ typedef struct {
 } my_str_t;
 
 
+int my_str_len_cstr(const char *cstr) {
+    int i = 0;
+    while (cstr[i] != '\0') {
+        i++;
+    }
+    return i++;
+}
+
 int my_str_create(my_str_t *str, size_t buf_size) {
 	char *arr = malloc(buf_size + 1);
 	if (arr) {
@@ -76,10 +84,10 @@ int my_str_from_cstr(my_str_t *str, const char *cstr, size_t buf_size) {
 		my_str_reserve(str, buf_size);
 	}
 	if (buf_size == 0) {
-		my_str_reserve(str, strlen(cstr));
+		my_str_reserve(str, my_str_len_cstr(cstr));
 	}
 
-	memcpy(str->data, cstr, (size_t) strlen(cstr) + 1);
+	memcpy(str->data, cstr, (size_t) my_str_len_cstr(cstr) + 1);
 
 	if (str->capacity_m < old) {
 		return -2;
@@ -277,7 +285,7 @@ int my_str_insert(my_str_t *str, my_str_t *from, size_t pos){
 //! За потреби -- збільшує буфер.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_insert_cstr(my_str_t *str, char *from, size_t pos){
-	for (int i = 0; i < strlen(from); i++){
+	for (int i = 0; i < my_str_len_cstr(from); i++){
 		my_str_insert_c(str, from[i], pos + i);
 	}
 	return 0;
@@ -298,7 +306,7 @@ int my_str_append(my_str_t *str, my_str_t *from) {
 //! За потреби -- збільшує буфер.
 //! У випадку помилки повертає різні від'ємні числа, якщо все ОК -- 0.
 int my_str_append_cstr(my_str_t *str, char *from){
-	for (int i = 0; i < strlen(from); i++){
+	for (int i = 0; i < my_str_len_cstr(from); i++){
 		if (my_str_pushback(str, from[i]) == -2){
 			my_str_reserve(str, str->capacity_m * 2);
 			my_str_pushback(str, from[i]);
@@ -439,13 +447,13 @@ int my_str_cmp(const my_str_t *str1, const my_str_t *str2){
 //! 1 (або інше додатне значення) -- якщо друга.
 //! Поведінка має бути такою ж, як в strcmp.
 int my_str_cmp_cstr(my_str_t *str1, const char *cstr2){
-	if (str1->size_m < strlen(cstr2)){
+	if (str1->size_m < my_str_len_cstr(cstr2)){
 		return -1;
 	}
-	else if (str1->size_m > strlen(cstr2)){
+	else if (str1->size_m > my_str_len_cstr(cstr2)){
 		return 1;
 	}
-	for (int i = 0; i < strlen(cstr2); i++){
+	for (int i = 0; i < my_str_len_cstr(cstr2); i++){
 		if (cstr2[i] > my_str_getc(str1, i)){
 			return -1;
 		}
@@ -552,32 +560,4 @@ int my_str_read(my_str_t *str) {
 		start++;
 	}
 	return 0;
-}
-
-
-int main() {
-	my_str_t solid, solid_2;
-	my_str_create(&solid_2, 2);
-	my_str_create(&solid, 1);
-	my_str_from_cstr(&solid_2, "ABC", strlen("ABC"));
-//	my_str_from_cstr(&solid, "CAb", strlen("ABC"));
-	my_str_read(&solid_2);
-	my_str_get_cstr(&solid_2);
-	printf("%s", solid_2.data);
-
-
-//	my_str_pushback(&solid, 'F');
-//	my_str_get_cstr(&solid_2);
-//	printf("%s", solid.data);
-//	my_str_insert_cstr(&solid, " LUCKY YOU ", 3);
-//	my_str_insert(&solid, &solid_2, 13);
-//	my_str_get_cstr(&solid);
-//	printf("%s %i", solid.data, solid.capacity_m);
-//	for (int i = 0; i < solid_2.size_m; i++) {
-//		my_str_insert_c(&solid, solid_2.data[i], i);
-//	}
-//	my_str_insert(&solid, &solid_2, 0);
-//	printf("%s %i %i", solid.data, solid_2.size_m, solid_2.capacity_m);
-//	my_str_insert(&solid, &solid_2, 0);
-//	printf("%i %i", solid.size_m, solid.capacity_m);
 }
